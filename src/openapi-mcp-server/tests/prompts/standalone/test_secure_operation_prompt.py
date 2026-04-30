@@ -250,10 +250,9 @@ class TestSecureOperationPrompt(unittest.TestCase):
             resource_message = messages[1]
             self.assertEqual(resource_message.role, 'user')
             self.assertEqual(resource_message.content.type, 'resource')
-            # AnyUrl percent-encodes curly braces in path templates
-            uri_str = str(resource_message.content.resource.uri)
-            self.assertIn('petstore/pet/', uri_str)
-            self.assertIn('petId', uri_str)
+            self.assertEqual(
+                str(resource_message.content.resource.uri), 'api://petstore/pet/%7BpetId%7D'
+            )
             self.assertEqual(resource_message.content.resource.mimeType, 'application/json')
 
         finally:

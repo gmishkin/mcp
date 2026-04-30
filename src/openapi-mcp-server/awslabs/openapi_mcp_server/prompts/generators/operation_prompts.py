@@ -18,12 +18,11 @@ from awslabs.openapi_mcp_server import logger
 from awslabs.openapi_mcp_server.prompts.models import (
     PromptArgument,
 )
-from fastmcp.prompts import Message
+from fastmcp.prompts.base import EmbeddedResource, Message
 from fastmcp.prompts.prompt import Prompt
 from fastmcp.prompts.prompt import PromptArgument as FastMCPPromptArgument
 from fastmcp.server.providers.openapi import MCPType
-from mcp.types import EmbeddedResource, TextResourceContents
-from pydantic import AnyUrl
+from mcp.types import EmbeddedResource
 from typing import Any, Dict, List, Optional
 
 
@@ -507,8 +506,8 @@ def create_operation_prompt(
                 if i < len(args_values):
                     param_values[arg.name] = args_values[i]
 
-            # Create messages using fastmcp.Message objects (required by FastMCP 3.x)
-            messages: List[Message] = [Message(doc)]
+            # Create messages
+            messages = [Message(doc, role='user')]
 
             # For resources, add resource reference with EmbeddedResource
             if op_type in ['resource', 'resource_template']:
@@ -518,16 +517,20 @@ def create_operation_prompt(
                 # Create resource URI
                 resource_uri = f'api://{api_name_val}{path_val}'
 
-                # Add resource reference message using EmbeddedResource
-                embedded = EmbeddedResource(
-                    type='resource',
-                    resource=TextResourceContents(
-                        uri=AnyUrl(resource_uri),
-                        mimeType=mime_type,
-                        text='',
-                    ),
+                # Add resource reference message
+                from mcp.types import TextResourceContents
+
+                messages.append(
+                    Message(
+                        EmbeddedResource(
+                            type='resource',
+                            resource=TextResourceContents(
+                                uri=resource_uri, mimeType=mime_type, text=''
+                            ),
+                        ),
+                        role='user',
+                    )
                 )
-                messages.append(Message(embedded))
 
             logger.debug(f'Operation {operation_id} returning {len(messages)} messages')
             return messages
