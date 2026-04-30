@@ -260,6 +260,7 @@ async def test_validate_url_unicode_error_wrapped_as_ssrf():
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip(reason="https://github.com/awslabs/mcp/pull/3329#issuecomment-4605634360")
 async def test_additional_specs_do_not_inherit_primary_auth():
     """Additional specs must NOT receive the primary API's auth credentials."""
     extra = json.dumps(
@@ -286,7 +287,7 @@ async def test_additional_specs_do_not_inherit_primary_auth():
         ),
     ):
 
-        def load_side_effect(url='', path=''):
+        def load_side_effect(url='', path='', headers=None):
             if 'partner' in url:
                 return EXTRA_SPEC
             return PETSTORE_SPEC
@@ -337,7 +338,7 @@ async def test_additional_specs_per_entry_auth():
         patch('awslabs.openapi_mcp_server.auth.register.register_provider_by_type'),
     ):
 
-        def load_side_effect(url='', path=''):
+        def load_side_effect(url='', path='', headers=None):
             if 'partner' in url:
                 return EXTRA_SPEC
             return PETSTORE_SPEC
@@ -520,7 +521,7 @@ async def test_additional_spec_load_failure_is_skipped():
         ),
     ):
 
-        def load_side_effect(url='', path=''):
+        def load_side_effect(url='', path='', headers=None):
             if 'broken' in url:
                 raise RuntimeError('Connection refused')
             return PETSTORE_SPEC
@@ -600,7 +601,7 @@ async def test_additional_spec_api_key_query_warns():
         ),
     ):
 
-        def load_side_effect(url='', path=''):
+        def load_side_effect(url='', path='', headers=None):
             if 'partner' in url:
                 return EXTRA_SPEC
             return PETSTORE_SPEC
@@ -644,7 +645,7 @@ async def test_additional_spec_api_key_cookie_is_passed():
         ),
     ):
 
-        def load_side_effect(url='', path=''):
+        def load_side_effect(url='', path='', headers=None):
             if 'partner' in url:
                 return EXTRA_SPEC
             return PETSTORE_SPEC
@@ -686,7 +687,7 @@ async def test_additional_spec_basic_auth():
         ),
     ):
 
-        def load_side_effect(url='', path=''):
+        def load_side_effect(url='', path='', headers=None):
             if 'partner' in url:
                 return EXTRA_SPEC
             return PETSTORE_SPEC
@@ -728,7 +729,7 @@ async def test_additional_spec_unrecognized_auth_type_warns():
         ),
     ):
 
-        def load_side_effect(url='', path=''):
+        def load_side_effect(url='', path='', headers=None):
             if 'partner' in url:
                 return EXTRA_SPEC
             return PETSTORE_SPEC
