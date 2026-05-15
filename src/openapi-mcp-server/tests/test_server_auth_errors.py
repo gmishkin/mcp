@@ -135,11 +135,12 @@ class TestServerAuthErrors:
             auth_oauth_token_endpoint='',
         )
 
-        create_mcp_server(config)
+        with pytest.raises(SystemExit):
+            create_mcp_server(config)
 
         mock_exit.assert_called_once_with(1)
 
-    @patch('sys.exit')
+    @patch('sys.exit', side_effect=SystemExit(1))
     @patch('awslabs.openapi_mcp_server.auth.get_auth_provider')
     def test_unknown_auth_not_configured(self, mock_get_auth, mock_exit):
         """Test handling of unknown auth type not configured."""
